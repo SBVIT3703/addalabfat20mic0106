@@ -1,0 +1,40 @@
+name: CI/CD with Static Code Analysis
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: pip install flake8
+
+      - name: Run static code analysis
+        run: flake8
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [ lint ]  # Only run this job after 'lint' succeeds
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'  # Adjust if needed
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt  # Assuming requirements.txt exists
+
+      - name: Build the application
+        run: python setup.py install  # Adjust if you have a different build process
+
+  deploy:  # Add this job for deployment (specific steps will depend on your deployment target)
+    runs-on: ubuntu-latest
+    needs: [ build ]  # Only run this job after 'build' succeeds
+    steps:
+      # ... Steps to deploy your application to your chosen target (e.g., AWS, Heroku) ...
